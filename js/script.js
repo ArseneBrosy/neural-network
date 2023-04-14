@@ -226,26 +226,29 @@ function loop() {
     ctx.closePath();
     ctx.stroke();
 
-    // isOnRoad
-    for (var y = 100; y < 500; y++) {
-        for (var x = 100; x < 400; x++) {
-            if (isOnRoad(x-camX,y-camY)) {
-                ctx.fillStyle = "green";
-            } else {
-                ctx.fillStyle = "red";
-            }
-            ctx.fillRect(x, y, 1, 1);
-        }
-    }
-
     // Player
     car.x += Math.cos(car.r * (Math.PI/180)) * car.speed;
     car.y += Math.sin(car.r * (Math.PI/180)) * car.speed;
     ctx.translate(camX + car.x * camZ / 25, camY + car.y * camZ / 25);
     ctx.rotate(car.r * (Math.PI/180));
-    //ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
+    ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
     ctx.rotate(-car.r * (Math.PI/180));
     ctx.translate(-camX - car.x * camZ / 25, -camY - car.y * camZ / 25);
+
+    // rays
+    ctx.fillStyle = "yellow";
+    for (var r = -45; r <= 45; r += 10) {
+        var rayX = car.x;
+        var rayY = car.y;
+        var rayR = r;
+        var distance = 0;
+        while (isOnRoad(rayX, rayY) && distance < 400) {
+            rayX += Math.cos(rayR * (Math.PI/180)) * 1;
+            rayY += Math.sin(rayR * (Math.PI/180)) * 1;
+            distance++;
+            ctx.fillRect(camX+rayX, camY+rayY, 1, 1);
+        }
+    }
     //#endregion
     requestAnimationFrame(loop);
 }
