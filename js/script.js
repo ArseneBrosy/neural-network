@@ -25,7 +25,7 @@ class Network {
             for (var y = 0; y < this.layers[x].length; y++) {
                 for (var z = 0; z < this.layers[x + 1].length; z++) {
                     //startLayer, startNeuron, endNeuron, before-adder, multiplier, afterAdder
-                    this.links.push([x, y, z, 0, 1, 0]);
+                    this.links.push([x, y, z, 0, 0, 0]);
                 }
             }
         }
