@@ -16,7 +16,7 @@ s_car.src = "../img/car.png";
 
 // other
 const MAX_RAY_DIS = 600;
-var simulation_time = 1000;
+var simulation_time = 2000;
 
 const MUTATION_SIZE = 0.1;
 //#endregion
@@ -118,7 +118,7 @@ class Car {
         this.fitness = 0;
     }
     shootRays () {
-        for (var r = 0; r <= 9; r ++) {
+        for (var r = 0; r < 9; r ++) {
             var rayX = this.x;
             var rayY = this.y;
             var rayR = (r*10-45+this.r)%360;
@@ -132,6 +132,21 @@ class Car {
                 this.crashed = true;
             }
             this.network.layers[0][r] = distance / 100;
+        }
+    }
+    drawRays () {
+        ctx.fillStyle = "yellow";
+        for (var r = 0; r < 9; r ++) {
+            var rayX = this.x;
+            var rayY = this.y;
+            var rayR = (r*10-45+this.r)%360;
+            var distance = 0;
+            while (isOnRoad(rayX, rayY) && distance < MAX_RAY_DIS) {
+                rayX += Math.cos(rayR * (Math.PI/180)) * 1;
+                rayY += Math.sin(rayR * (Math.PI/180)) * 1;
+                distance++;
+                ctx.fillRect(camX + rayX * camZ / 25, camY + rayY * camZ / 25, camZ / 25, camZ / 25);
+            }
         }
     }
     move () {
@@ -293,6 +308,7 @@ function newGen() {
     localStorage.setItem("neuranet-gen", JSON.stringify(generation));
 }
 
+var selectedCar = 0
 function loop() {
     //#region MOVE CAMERA
     if(mouseLeft) {
@@ -328,12 +344,16 @@ function loop() {
         ctx.rotate(-cars[i].r * (Math.PI/180));
         ctx.translate(-camX - cars[i].x * camZ / 25, -camY - cars[i].y * camZ / 25);
     }
+    ctx.fillStyle = "green";
+    ctx.fillRect(camX + cars[selectedCar].x * camZ / 25 - camZ, camY + cars[selectedCar].y * camZ / 25 - camZ, camZ * 2, camZ * 2);
+    cars[selectedCar].drawRays();
+    cars[selectedCar].network.draw(0,0,15,10);
 
     // time
     ctx.font = "50px serif";
     ctx.fillStyle = "black";
-    ctx.fillText("time: " + time, 20, 50);
-    ctx.fillText("gen: " + generation, 20, 100);
+    ctx.fillText("time: " + time, 20, canvas.height - 75);
+    ctx.fillText("gen: " + generation, 20, canvas.height - 25);
     
     //#endregion
     
@@ -373,17 +393,12 @@ document.addEventListener("wheel", (e) => {
     camZ -= e.deltaY * 0.01;
     if (camZ < 1) { camZ = 1; }
 });
-/*document.addEventListener("keydown", (e) => {
-    if (e.which === 65) {
-        rotSpeed = -5;
-    }
-    if (e.which === 68) {
-        rotSpeed = 5;;
+document.addEventListener("keydown", (e) => {
+    if (e.which === 32) {
+        selectedCar++;
+        if (selectedCar >= cars.length) {
+            selectedCar = 0;
+        }
     }
 });
-document.addEventListener("keyup", (e) => {
-    if (e.which === 65 || e.which === 68) {
-        rotSpeed = 0;
-    }
-});*/
 //#endregion
