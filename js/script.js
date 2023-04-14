@@ -8,6 +8,10 @@ const c_neurons = "#bbbbbb";
 const c_links = "black";
 const c_text = "black";
 const c_network_background = "white";
+
+// sprites
+const s_car = new Image();
+s_car.src = "../img/car.png";
 //#endregion
 
 class Network {
@@ -30,13 +34,6 @@ class Network {
             }
         }
     }
-    mutate(fAddMargin, mulMargin, aAddMargin) {
-        for (var i = 0; i < this.links.length; i++) {
-            this.links[i][3] += Math.random() * fAddMargin * 2 - fAddMargin;
-            this.links[i][4] += Math.random() * mulMargin * 2 - mulMargin;
-            this.links[i][5] += Math.random() * aAddMargin * 2 - aAddMargin;
-        }
-    }
     evaluate() {
         // reinit
         for (var x = 1; x < this.layers.length; x++) {
@@ -46,6 +43,13 @@ class Network {
         }
         for (var i = 0; i < this.links.length; i++) {this
             this.layers[this.links[i][0] + 1][this.links[i][2]] += (this.layers[this.links[i][0]][this.links[i][1]] + this.links[i][3]) * this.links[i][4] + this.links[i][5];
+        }
+    }
+    mutate(fAddMargin, mulMargin, aAddMargin) {
+        for (var i = 0; i < this.links.length; i++) {
+            this.links[i][3] += Math.random() * fAddMargin * 2 - fAddMargin;
+            this.links[i][4] += Math.random() * mulMargin * 2 - mulMargin;
+            this.links[i][5] += Math.random() * aAddMargin * 2 - aAddMargin;
         }
     }
     draw(posX, posY, size, margin) {
@@ -86,9 +90,18 @@ class Network {
     }
 }
 
+class Car {
+    constructor () {
+        this.x = 0;
+        this.y = 0;
+        this.r = 0;
+        this.speed = 0;
+    }
+}
+
 //#region VARIABLES
-var camX = 100;
-var camY = 400;
+var camX = 150;
+var camY = 100;
 
 // souris
 var mouseX = 0;
@@ -96,6 +109,9 @@ var mouseY = 0;
 var mouseLeft = false;
 var mouseCamOffsetX = 0;
 var mouseCamOffsetY = 0;
+
+// car
+var car = new Car();
 
 // network
 var network = new Network([4,5,5,1]);
@@ -113,17 +129,19 @@ function loop() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    //#region FOND
+    // Background
     ctx.fillStyle = c_background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    //#endregion
 
-    ctx.fillStyle = "red"
-    ctx.fillRect(camX, camY, 50, 50);
+    // Player
+    car.x += Math.cos(car.r * (Math.PI/180)) * car.speed;
+    car.y += Math.sin(car.r * (Math.PI/180)) * car.speed;
+    ctx.translate(camX + car.x, camY + car.y);
+    ctx.rotate(car.r * (Math.PI/180));
+    ctx.drawImage(s_car, -100, -50, 200, 100);
+    ctx.rotate(-car.r * (Math.PI/180));
+    ctx.translate(camX + car.x, camY + car.y);
     //#endregion
-
-    network.draw(0, 0, 20, 10);
-    network.evaluate();
     requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
