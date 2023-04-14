@@ -16,7 +16,7 @@ s_car.src = "../img/car.png";
 
 // other
 const MAX_RAY_DIS = 600;
-const SIMULATION_TIME = 1000;
+var simulation_time = 1000;
 
 const MUTATION_SIZE = 0.1;
 //#endregion
@@ -147,7 +147,7 @@ class Car {
         this.r %= 360;
     }
     simuate () {
-        for (var i = 0; i < SIMULATION_TIME; i++) {
+        for (var i = 0; i < simulation_time; i++) {
             this.move();
         }
     }
@@ -165,12 +165,23 @@ var mouseLeft = false;
 var mouseCamOffsetX = 0;
 var mouseCamOffsetY = 0;
 
-// car
+var time = 0;
+var generation = 0;
+
+// cars
 var cars = [];
 for (var i = 0; i < 15; i++) {
     var ncar = new Car();
     ncar.network.mutate(0.5,0.5,0.5);
     cars.push(ncar);
+}
+if (localStorage.getItem("neuranet-cars") != null) {
+    var saved = generation = JSON.parse(localStorage.getItem("neuranet-cars"));
+    for (var i = 0; i < cars.length; i++) {
+        cars[i].network.links = JSON.parse(JSON.stringify(saved[i].network.links));
+    }
+    //cars = JSON.parse(localStorage.getItem("neuranet-cars"));
+    generation = JSON.parse(localStorage.getItem("neuranet-gen"));
 }
 
 // road
@@ -255,7 +266,6 @@ function isOnRoad(x, y) {
 }
 
 function newGen() {
-    console.log(cars[0].network.links[0][3] + " and " + cars[1].network.links[0][3]);
     // kill half
     var sortedCars = cars.sort((c1, c2) => (c1.fitness < c2.fitness) ? 1 : (c1.fitness > c2.fitness) ? -1 : 0);
     sortedCars.splice(sortedCars.length / 2, sortedCars.length / 2);
@@ -279,11 +289,10 @@ function newGen() {
         //newCars[i].network.mutate(MUTATION_SIZE, MUTATION_SIZE, MUTATION_SIZE);
     }
     cars = newCars;
-    console.log(cars[0].network.links[0][3] + " and " + cars[1].network.links[0][3]);
+    localStorage.setItem("neuranet-cars", JSON.stringify(cars));
+    localStorage.setItem("neuranet-gen", JSON.stringify(generation));
 }
 
-var time = 0;
-var generation = 0;
 function loop() {
     //#region MOVE CAMERA
     if(mouseLeft) {
@@ -328,7 +337,7 @@ function loop() {
     
     //#endregion
     
-    if (time < SIMULATION_TIME) {
+    if (time < simulation_time) {
         time ++;
         for (var i = 0; i < cars.length; i++) {
             cars[i].move();
