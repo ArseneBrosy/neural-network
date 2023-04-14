@@ -135,8 +135,8 @@ class Car {
         }
     }
     drawRays () {
-        ctx.fillStyle = "yellow";
         for (var r = 0; r < 9; r ++) {
+            ctx.fillStyle = "yellow";
             var rayX = this.x;
             var rayY = this.y;
             var rayR = (r*10-45+this.r)%360;
@@ -147,6 +147,8 @@ class Car {
                 distance++;
                 ctx.fillRect(camX + rayX * camZ / 25, camY + rayY * camZ / 25, camZ / 25, camZ / 25);
             }
+            ctx.fillStyle = "red";
+            ctx.fillRect(camX + rayX * camZ / 25 - camZ / 4, camY + rayY * camZ / 25 - camZ / 4, camZ / 2, camZ / 2);
         }
     }
     move () {
