@@ -119,7 +119,7 @@ var car = new Car();
 var network = new Network([4,5,5,1]);
 
 // road
-var roadWidth = 200;
+var roadWidth = 300;
 var road = [
     [0, 0],
     [4000, 0],
@@ -132,19 +132,31 @@ var road = [
     [1300, 750],
     [1300, 900],
     [1350, 1000],
+    [2600, 1900],
+    [2800, 2000],
     [3000, 2000],
-    [3000, 2000],
-    [4000, 1300],
+    [3200, 1900],
+    [3900, 1350],
+    [4100, 1300],
     [5000, 1300],
+    [5500, 1500],
     [5750, 2100],
+    [5500, 2700],
     [5000, 3000],
     [-300, 3000],
+    [-500, 2900],
     [-600, 2700],
+    [-500, 2500],
     [-300, 2400],
     [300, 2400],
+    [700, 2150],
     [800, 1800],
+    [700, 1600],
+    [-100, 1150],
     [-200, 1000],
-    [-200, 0],
+    [-200, 400],
+    [-150, 100],
+    [-100, 50],
     [0, 0],
 ];
 //#endregion
@@ -173,6 +185,7 @@ function loop() {
     for (var i = 1; i < road.length; i++) {
         ctx.lineTo(camX + road[i][0] * camZ / 25, camY + road[i][1] * camZ / 25);
     }
+    ctx.closePath();
     ctx.stroke();
 
     // Player
@@ -182,7 +195,7 @@ function loop() {
     ctx.rotate(car.r * (Math.PI/180));
     ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
     ctx.rotate(-car.r * (Math.PI/180));
-    ctx.translate(camX + car.x * camZ / 25, camY + car.y * camZ / 25);
+    ctx.translate(-camX - car.x * camZ / 25, -camY - car.y * camZ / 25);
     //#endregion
     requestAnimationFrame(loop);
 }
