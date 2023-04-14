@@ -101,9 +101,9 @@ class Car {
 }
 
 //#region VARIABLES
-var camX = 150;
-var camY = 100;
-var camZ = 3;
+var camX = 300;
+var camY = 300;
+var camZ = 25;
 
 // souris
 var mouseX = 0;
@@ -161,6 +161,44 @@ var road = [
 ];
 //#endregion
 
+function isOnRoad(x, y) {
+    var result = false;
+    for (var i = 0; i < road.length - 1; i++) {
+        //#region random shit found online DO NO TOUCH
+        // https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+        var A = x - road[i][0];
+        var B = y - road[i][1];
+        var C = road[i+1][0] - road[i][0];
+        var D = road[i+1][1] - road[i][1];
+        var dot = A * C + B * D;
+        var len_sq = C * C + D * D;
+        var param = -1;
+        if (len_sq != 0) //in case of 0 length line
+            param = dot / len_sq;
+    
+        var xx, yy;
+        if (param < 0) {
+        xx = road[i][0];
+        yy = road[i][1];
+        }
+        else if (param > 1) {
+        xx = road[i+1][0];
+        yy = road[i+1][1];
+        }
+        else {
+        xx = road[i][0] + param * C;
+        yy = road[i][1] + param * D;
+        }
+        var dx = x - xx;
+        var dy = y - yy; 
+        //#endregion
+        if (Math.sqrt(dx * dx + dy * dy) <= roadWidth / 2) {
+            result = true;
+        }
+    }
+    return result;
+}
+
 function loop() {
     //#region MOVE CAMERA
     if(mouseLeft) {
@@ -188,12 +226,24 @@ function loop() {
     ctx.closePath();
     ctx.stroke();
 
+    // isOnRoad
+    for (var y = 100; y < 500; y++) {
+        for (var x = 100; x < 400; x++) {
+            if (isOnRoad(x-camX,y-camY)) {
+                ctx.fillStyle = "green";
+            } else {
+                ctx.fillStyle = "red";
+            }
+            ctx.fillRect(x, y, 1, 1);
+        }
+    }
+
     // Player
     car.x += Math.cos(car.r * (Math.PI/180)) * car.speed;
     car.y += Math.sin(car.r * (Math.PI/180)) * car.speed;
     ctx.translate(camX + car.x * camZ / 25, camY + car.y * camZ / 25);
     ctx.rotate(car.r * (Math.PI/180));
-    ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
+    //ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
     ctx.rotate(-car.r * (Math.PI/180));
     ctx.translate(-camX - car.x * camZ / 25, -camY - car.y * camZ / 25);
     //#endregion
