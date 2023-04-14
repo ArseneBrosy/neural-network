@@ -308,12 +308,18 @@ function newGen() {
     localStorage.setItem("neuranet-gen", JSON.stringify(generation));
 }
 
-var selectedCar = 0
+var selectedCar = 0;
+var focus = true;
+var drawNetwork = false;
 function loop() {
     //#region MOVE CAMERA
     if(mouseLeft) {
         camX = mouseX + mouseCamOffsetX;
         camY = mouseY + mouseCamOffsetY;
+    }
+    if (focus) {
+        camX = -cars[selectedCar].x * camZ / 25 + canvas.width / 2;
+        camY = -cars[selectedCar].y * camZ / 25 + canvas.height / 2;
     }
     //#endregion
 
@@ -337,17 +343,21 @@ function loop() {
     ctx.stroke();
 
     // Cars
+    ctx.globalAlpha = 0.2;
     for (var i = 0; i < cars.length; i++) {
+        if (i === selectedCar) { ctx.globalAlpha = 1; }
         ctx.translate(camX + cars[i].x * camZ / 25, camY + cars[i].y * camZ / 25);
         ctx.rotate(cars[i].r * (Math.PI/180));
         ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
         ctx.rotate(-cars[i].r * (Math.PI/180));
         ctx.translate(-camX - cars[i].x * camZ / 25, -camY - cars[i].y * camZ / 25);
+        ctx.globalAlpha = 0.2;
     }
+    ctx.globalAlpha = 1;
     ctx.fillStyle = "green";
     ctx.fillRect(camX + cars[selectedCar].x * camZ / 25 - camZ, camY + cars[selectedCar].y * camZ / 25 - camZ, camZ * 2, camZ * 2);
     cars[selectedCar].drawRays();
-    cars[selectedCar].network.draw(0,0,15,10);
+    if (drawNetwork) { cars[selectedCar].network.draw(0,0,15,10); }
 
     // time
     ctx.font = "50px serif";
@@ -394,7 +404,18 @@ document.addEventListener("wheel", (e) => {
     if (camZ < 1) { camZ = 1; }
 });
 document.addEventListener("keydown", (e) => {
+    console.log(e.which);
+    if (e.which === 13) {
+        drawNetwork = !drawNetwork;
+    }
+    if (e.which === 27) {
+        focus = false;
+    }
+    if (e.which === 70) {
+        focus = !focus;
+    }
     if (e.which === 32) {
+        focus = true;
         selectedCar++;
         if (selectedCar >= cars.length) {
             selectedCar = 0; 
