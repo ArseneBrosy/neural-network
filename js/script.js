@@ -8,6 +8,7 @@ const c_neurons = "#bbbbbb";
 const c_links = "black";
 const c_text = "black";
 const c_network_background = "white";
+const c_road = "#333333";
 
 // sprites
 const s_car = new Image();
@@ -102,6 +103,7 @@ class Car {
 //#region VARIABLES
 var camX = 150;
 var camY = 100;
+var camZ = 25;
 
 // souris
 var mouseX = 0;
@@ -115,6 +117,21 @@ var car = new Car();
 
 // network
 var network = new Network([4,5,5,1]);
+
+// road
+var terrainSizeX = 100;
+var terrainSizeY = 100;
+var roadCells = [];
+for (var y = 0; y < terrainSizeY; y++) {
+    var row = [];
+    for (var x = 0; x < terrainSizeX; x++) {
+        row.push(0);
+    }
+    roadCells.push(row);
+}
+roadCells[4][4] = 1;
+roadCells[4][5] = 1;
+roadCells[4][6] = 1;
 //#endregion
 
 function loop() {
@@ -133,12 +150,22 @@ function loop() {
     ctx.fillStyle = c_background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // road
+    ctx.fillStyle = c_road;
+    for (var y = 0; y < terrainSizeY; y++) {
+        for (var x = 0; x < terrainSizeX; x++) {
+            if (roadCells[x][y] === 1) {
+                ctx.fillRect(camX + x * camZ, camY + y * camZ, camZ, camZ);
+            }
+        }
+    }
+
     // Player
     car.x += Math.cos(car.r * (Math.PI/180)) * car.speed;
     car.y += Math.sin(car.r * (Math.PI/180)) * car.speed;
     ctx.translate(camX + car.x, camY + car.y);
     ctx.rotate(car.r * (Math.PI/180));
-    ctx.drawImage(s_car, -100, -50, 200, 100);
+    ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
     ctx.rotate(-car.r * (Math.PI/180));
     ctx.translate(camX + car.x, camY + car.y);
     //#endregion
@@ -162,5 +189,8 @@ document.addEventListener("mouseup", (e) => {
     if (e.which === 1) {
         mouseLeft = false;
     }
+});
+document.addEventListener("wheel", (e) => {
+    camZ -= e.deltaY * 0.01;
 });
 //#endregion
