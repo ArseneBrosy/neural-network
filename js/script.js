@@ -100,6 +100,31 @@ class Car {
         this.y = 0;
         this.r = 0;
         this.speed = 0;
+        this.rotSpeed = 0;
+        this.network = new Network([9,12,12,9,7,5,2]);
+    }
+    shootRays () {
+        ctx.fillStyle = "yellow";
+        for (var r = 0; r <= 9; r ++) {
+            var rayX = this.x;
+            var rayY = this.y;
+            var rayR = (r*10-45+this.r)%360;
+            var distance = 0;
+            while (isOnRoad(rayX, rayY) && distance < MAX_RAY_DIS) {
+                rayX += Math.cos(rayR * (Math.PI/180)) * 1;
+                rayY += Math.sin(rayR * (Math.PI/180)) * 1;
+                distance++;
+                ctx.fillRect(camX+rayX*camZ/25, camY+rayY*camZ/25, camZ/25, camZ/25);
+            }
+            this.network.layers[0][r] = distance / 100;
+        }
+    }
+    move () {
+        this.network.evaluate();
+        this.rotSpeed = this.network.layers[this.network.layers.length - 1][0];
+        this.speed = this.network.layers[this.network.layers.length - 1][1];
+        this.r += this.rotSpeed;
+        this.r %= 360;
     }
 }
 
@@ -117,10 +142,7 @@ var mouseCamOffsetY = 0;
 
 // car
 var car = new Car();
-
-// network
-var network = new Network([9,12,12,9,7,5,2]);
-network.mutate(0.5,0.5,0.5);
+car.network.mutate(0.5,0.5,0.5);
 
 // road
 var roadWidth = 300;
@@ -241,31 +263,10 @@ function loop() {
     ctx.translate(-camX - car.x * camZ / 25, -camY - car.y * camZ / 25);
     //#endregion
 
-    //#region RAYS
-    ctx.fillStyle = "yellow";
-    for (var r = 0; r <= 9; r ++) {
-        var rayX = car.x;
-        var rayY = car.y;
-        var rayR = (r*10-45+car.r)%360;
-        var distance = 0;
-        while (isOnRoad(rayX, rayY) && distance < MAX_RAY_DIS) {
-            rayX += Math.cos(rayR * (Math.PI/180)) * 1;
-            rayY += Math.sin(rayR * (Math.PI/180)) * 1;
-            distance++;
-            ctx.fillRect(camX+rayX*camZ/25, camY+rayY*camZ/25, camZ/25, camZ/25);
-        }
-        network.layers[0][r] = distance / 100;
-    }
-    //#endregion
-
-    car.r += rotSpeed;
-    car.r %= 360;
-
-    network.draw(0,0,15,5);
-    network.evaluate();
-
-    rotSpeed = network.layers[network.layers.length - 1][0];
-    car.speed = network.layers[network.layers.length - 1][1];
+    car.shootRays();
+    car.move();
+    car.network.draw(0,0,15,5);
+    
     requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
