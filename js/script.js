@@ -103,7 +103,7 @@ class Car {
 //#region VARIABLES
 var camX = 150;
 var camY = 100;
-var camZ = 25;
+var camZ = 3;
 
 // souris
 var mouseX = 0;
@@ -119,19 +119,34 @@ var car = new Car();
 var network = new Network([4,5,5,1]);
 
 // road
-var terrainSizeX = 100;
-var terrainSizeY = 100;
-var roadCells = [];
-for (var y = 0; y < terrainSizeY; y++) {
-    var row = [];
-    for (var x = 0; x < terrainSizeX; x++) {
-        row.push(0);
-    }
-    roadCells.push(row);
-}
-roadCells[4][4] = 1;
-roadCells[4][5] = 1;
-roadCells[4][6] = 1;
+var roadWidth = 200;
+var road = [
+    [0, 0],
+    [4000, 0],
+    [4750, -300],
+    [5000, -200],
+    [5200, 400],
+    [5050, 600],
+    [1500, 600],
+    [1400, 650],
+    [1300, 750],
+    [1300, 900],
+    [1350, 1000],
+    [3000, 2000],
+    [3000, 2000],
+    [4000, 1300],
+    [5000, 1300],
+    [5750, 2100],
+    [5000, 3000],
+    [-300, 3000],
+    [-600, 2700],
+    [-300, 2400],
+    [300, 2400],
+    [800, 1800],
+    [-200, 1000],
+    [-200, 0],
+    [0, 0],
+];
 //#endregion
 
 function loop() {
@@ -151,23 +166,23 @@ function loop() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // road
-    ctx.fillStyle = c_road;
-    for (var y = 0; y < terrainSizeY; y++) {
-        for (var x = 0; x < terrainSizeX; x++) {
-            if (roadCells[x][y] === 1) {
-                ctx.fillRect(camX + x * camZ, camY + y * camZ, camZ, camZ);
-            }
-        }
+    ctx.strokeStyle = c_road;
+    ctx.lineWidth = roadWidth * camZ / 25;
+    ctx.beginPath();
+    ctx.moveTo(camX + road[0][0] * camZ / 25, camY + road[0][1] * camZ / 25);
+    for (var i = 1; i < road.length; i++) {
+        ctx.lineTo(camX + road[i][0] * camZ / 25, camY + road[i][1] * camZ / 25);
     }
+    ctx.stroke();
 
     // Player
     car.x += Math.cos(car.r * (Math.PI/180)) * car.speed;
     car.y += Math.sin(car.r * (Math.PI/180)) * car.speed;
-    ctx.translate(camX + car.x, camY + car.y);
+    ctx.translate(camX + car.x * camZ / 25, camY + car.y * camZ / 25);
     ctx.rotate(car.r * (Math.PI/180));
     ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
     ctx.rotate(-car.r * (Math.PI/180));
-    ctx.translate(camX + car.x, camY + car.y);
+    ctx.translate(camX + car.x * camZ / 25, camY + car.y * camZ / 25);
     //#endregion
     requestAnimationFrame(loop);
 }
@@ -192,5 +207,6 @@ document.addEventListener("mouseup", (e) => {
 });
 document.addEventListener("wheel", (e) => {
     camZ -= e.deltaY * 0.01;
+    if (camZ < 1) { camZ = 1; }
 });
 //#endregion
