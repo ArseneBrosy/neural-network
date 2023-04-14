@@ -154,7 +154,7 @@ class Car {
         this.shootRays();
         this.network.evaluate();
         this.rotSpeed = Math.min(this.network.layers[this.network.layers.length - 1][0], 10);
-        this.speed = Math.min(this.network.layers[this.network.layers.length - 1][1], 15);
+        this.speed = Math.min(this.network.layers[this.network.layers.length - 1][1], 35);
         this.x += Math.cos(this.r * (Math.PI/180)) * this.speed;
         this.y += Math.sin(this.r * (Math.PI/180)) * this.speed;
         this.fitness += this.speed - Math.abs(this.rotSpeed);
@@ -397,7 +397,7 @@ document.addEventListener("keydown", (e) => {
     if (e.which === 32) {
         selectedCar++;
         if (selectedCar >= cars.length) {
-            selectedCar = 0;
+            selectedCar = 0; 
         }
     }
 });
