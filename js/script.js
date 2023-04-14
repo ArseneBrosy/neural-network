@@ -4,12 +4,12 @@ var ctx = canvas.getContext("2d");
 //#region CONSTANTES
 // couleures
 const c_background = "#8397FF";
-const c_neurons = "white";
+const c_neurons = "#bbbbbb";
 const c_links = "black";
 const c_text = "black";
+const c_network_background = "white";
 //#endregion
 
-//#region CREATURE
 class Network {
     constructor(layerSizes) {
         this.layers = [];
@@ -48,8 +48,41 @@ class Network {
             this.layers[this.links[i][0] + 1][this.links[i][2]] += (this.layers[this.links[i][0]][this.links[i][1]] + this.links[i][3]) * this.links[i][4] + this.links[i][5];
         }
     }
+    draw(posX, posY, radius, margin) {
+        // calc height
+        var maxSize = 0;
+        for (var x = 0; x < this.layers.length; x++) {
+            if (this.layers[x].length > maxSize) { maxSize = this.layers[x].length; }
+        }
+        // background
+        ctx.fillStyle = c_network_background;
+        ctx.fillRect(posX, posY, (this.layers.length - 1) * xSpacing + radius * 2 + margin * 2, (maxSize - 1) * ySpacing + radius * 2 + margin * 2);
+        // modifiy posX and posY
+        posX += radius + margin;
+        posY += maxSize * ySpacing / 2 + radius + margin;
+        // links
+        ctx.strokeStyle = c_links;
+        ctx.lineWidth = 1;
+        for (var i = 0; i < this.links.length; i++) {
+            ctx.beginPath();
+            ctx.moveTo(posX + this.links[i][0] * xSpacing, posY + this.links[i][1] * ySpacing - this.layers[this.links[i][0]].length * ySpacing / 2);
+            ctx.lineTo(posX + (this.links[i][0] + 1) * xSpacing, posY + this.links[i][2] * ySpacing - this.layers[this.links[i][0] + 1].length * ySpacing / 2);
+            ctx.stroke();
+        }
+        // neurons
+        ctx.font = radius + "px serif";
+        for (var x = 0; x < this.layers.length; x++) {
+            for (var y = 0; y < this.layers[x].length; y++) {
+                ctx.fillStyle = c_neurons;
+                ctx.beginPath();
+                ctx.arc(posX + x * xSpacing, posY + y * ySpacing - this.layers[x].length * ySpacing / 2, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = c_text;
+                ctx.fillText(parseInt(this.layers[x][y] * 10) / 10, posX + x * xSpacing - radius / 2, posY + y * ySpacing - this.layers[x].length * ySpacing / 2 + radius / 4);
+            }
+        }
+    }
 }
-//#endregion
 
 //#region VARIABLES
 var camX = 100;
@@ -66,7 +99,7 @@ var ySpacing = 60;
 var xSpacing = 120;
 
 // network
-var network = new Network([4, 5, 7, 10, 10, 10, 7, 5, 1]);
+var network = new Network([4,5,5,1]);
 //#endregion
 
 function loop() {
@@ -88,28 +121,11 @@ function loop() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     //#endregion
 
+    ctx.fillStyle = "red"
+    ctx.fillRect(camX, camY, 50, 50);
+
     //#region NETWORK
-    // links
-    ctx.strokeStyle = c_links;
-    ctx.lineWidth = 1;
-    for (var i = 0; i < network.links.length; i++) {
-        ctx.beginPath();
-        ctx.moveTo(camX + network.links[i][0] * xSpacing, camY + network.links[i][1] * ySpacing - network.layers[network.links[i][0]].length * ySpacing / 2);
-        ctx.lineTo(camX + (network.links[i][0] + 1) * xSpacing, camY + network.links[i][2] * ySpacing - network.layers[network.links[i][0] + 1].length * ySpacing / 2);
-        ctx.stroke();
-    }
-    // neurons
-    ctx.font = "20px serif";
-    for (var x = 0; x < network.layers.length; x++) {
-        for (var y = 0; y < network.layers[x].length; y++) {
-            ctx.fillStyle = c_neurons;
-            ctx.beginPath();
-            ctx.arc(camX + x * xSpacing, camY + y * ySpacing - network.layers[x].length * ySpacing / 2, 20, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.fillStyle = c_text;
-            ctx.fillText(parseInt(network.layers[x][y] * 10) / 10, camX + x * xSpacing - 10, camY + y * ySpacing - network.layers[x].length * ySpacing / 2 + 5);
-        }
-    }
+    network.draw(0, 0, 20, 10);
     //#endregion
     //#endregion
     network.evaluate();
