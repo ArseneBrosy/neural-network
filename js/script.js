@@ -13,6 +13,9 @@ const c_road = "#333333";
 // sprites
 const s_car = new Image();
 s_car.src = "../img/car.png";
+
+// other
+const MAX_RAY_DIS = 600;
 //#endregion
 
 class Network {
@@ -116,7 +119,7 @@ var mouseCamOffsetY = 0;
 var car = new Car();
 
 // network
-var network = new Network([4,5,5,1]);
+var network = new Network([9,5,5,1]);
 
 // road
 var roadWidth = 300;
@@ -237,18 +240,21 @@ function loop() {
 
     // rays
     ctx.fillStyle = "yellow";
-    for (var r = -45; r <= 45; r += 10) {
+    for (var r = 0; r <= 9; r ++) {
         var rayX = car.x;
         var rayY = car.y;
-        var rayR = r;
+        var rayR = r*10-45;
         var distance = 0;
-        while (isOnRoad(rayX, rayY) && distance < 400) {
+        while (isOnRoad(rayX, rayY) && distance < MAX_RAY_DIS) {
             rayX += Math.cos(rayR * (Math.PI/180)) * 1;
             rayY += Math.sin(rayR * (Math.PI/180)) * 1;
             distance++;
-            ctx.fillRect(camX+rayX, camY+rayY, 1, 1);
+            ctx.fillRect(camX+rayX*camZ/25, camY+rayY*camZ/25, camZ/25, camZ/25);
         }
+        network.layers[0][r] = distance / 100;
     }
+    network.draw(0,0,15,5);
+    network.evaluate();
     //#endregion
     requestAnimationFrame(loop);
 }
