@@ -16,6 +16,9 @@ s_car.src = "../img/car.png";
 
 // other
 const MAX_RAY_DIS = 600;
+const SIMULATION_TIME = 1000;
+
+const MUTATION_SIZE = 0.1;
 //#endregion
 
 class Network {
@@ -102,9 +105,19 @@ class Car {
         this.speed = 0;
         this.rotSpeed = 0;
         this.network = new Network([9,12,12,9,7,5,2]);
+        this.crashed = false;
+        this.fitness = 0;
+    }
+    reset () {
+        this.x = 0;
+        this.y = 0;
+        this.r = 0;
+        this.speed = 0;
+        this.rotSpeed = 0;
+        this.crashed = false;
+        this.fitness = 0;
     }
     shootRays () {
-        ctx.fillStyle = "yellow";
         for (var r = 0; r <= 9; r ++) {
             var rayX = this.x;
             var rayY = this.y;
@@ -114,17 +127,29 @@ class Car {
                 rayX += Math.cos(rayR * (Math.PI/180)) * 1;
                 rayY += Math.sin(rayR * (Math.PI/180)) * 1;
                 distance++;
-                ctx.fillRect(camX+rayX*camZ/25, camY+rayY*camZ/25, camZ/25, camZ/25);
+            }
+            if (distance <= 75) {
+                this.crashed = true;
             }
             this.network.layers[0][r] = distance / 100;
         }
     }
     move () {
+        if (this.crashed) { return;}
+        this.shootRays();
         this.network.evaluate();
-        this.rotSpeed = this.network.layers[this.network.layers.length - 1][0];
-        this.speed = this.network.layers[this.network.layers.length - 1][1];
+        this.rotSpeed = Math.min(this.network.layers[this.network.layers.length - 1][0], 10);
+        this.speed = Math.min(this.network.layers[this.network.layers.length - 1][1], 15);
+        this.x += Math.cos(this.r * (Math.PI/180)) * this.speed;
+        this.y += Math.sin(this.r * (Math.PI/180)) * this.speed;
+        this.fitness += this.speed - Math.abs(this.rotSpeed);
         this.r += this.rotSpeed;
         this.r %= 360;
+    }
+    simuate () {
+        for (var i = 0; i < SIMULATION_TIME; i++) {
+            this.move();
+        }
     }
 }
 
@@ -141,8 +166,12 @@ var mouseCamOffsetX = 0;
 var mouseCamOffsetY = 0;
 
 // car
-var car = new Car();
-car.network.mutate(0.5,0.5,0.5);
+var cars = [];
+for (var i = 0; i < 15; i++) {
+    var ncar = new Car();
+    ncar.network.mutate(0.5,0.5,0.5);
+    cars.push(ncar);
+}
 
 // road
 var roadWidth = 300;
@@ -225,7 +254,36 @@ function isOnRoad(x, y) {
     return result;
 }
 
-var rotSpeed = 0;
+function newGen() {
+    console.log(cars[0].network.links[0][3] + " and " + cars[1].network.links[0][3]);
+    // kill half
+    var sortedCars = cars.sort((c1, c2) => (c1.fitness < c2.fitness) ? 1 : (c1.fitness > c2.fitness) ? -1 : 0);
+    sortedCars.splice(sortedCars.length / 2, sortedCars.length / 2);
+    cars = sortedCars;
+    
+    var newCars = [];
+    // clone
+    for (var i = 0; i < cars.length; i++) {
+        //! j'ai littéralement passé 3h30 pour trouver comment cloner un putain d'objet alors
+        //! NE TOUCHER CE BLOC SOUS AUCUN PRETEXTE
+        var parent = new Car();
+        parent.network.links = JSON.parse(JSON.stringify(cars[i].network.links));
+        var children = new Car();
+        children.network.links = JSON.parse(JSON.stringify(cars[i].network.links));
+        children.network.mutate(0.05,0.1,0.05);
+        newCars.push(parent);
+        newCars.push(children);
+    }
+    // mutate
+    for (var i = 0; i < newCars.length; i+=2) {
+        //newCars[i].network.mutate(MUTATION_SIZE, MUTATION_SIZE, MUTATION_SIZE);
+    }
+    cars = newCars;
+    console.log(cars[0].network.links[0][3] + " and " + cars[1].network.links[0][3]);
+}
+
+var time = 0;
+var generation = 0;
 function loop() {
     //#region MOVE CAMERA
     if(mouseLeft) {
@@ -253,20 +311,34 @@ function loop() {
     ctx.closePath();
     ctx.stroke();
 
-    // Player
-    car.x += Math.cos(car.r * (Math.PI/180)) * car.speed;
-    car.y += Math.sin(car.r * (Math.PI/180)) * car.speed;
-    ctx.translate(camX + car.x * camZ / 25, camY + car.y * camZ / 25);
-    ctx.rotate(car.r * (Math.PI/180));
-    ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
-    ctx.rotate(-car.r * (Math.PI/180));
-    ctx.translate(-camX - car.x * camZ / 25, -camY - car.y * camZ / 25);
-    //#endregion
+    // Cars
+    for (var i = 0; i < cars.length; i++) {
+        ctx.translate(camX + cars[i].x * camZ / 25, camY + cars[i].y * camZ / 25);
+        ctx.rotate(cars[i].r * (Math.PI/180));
+        ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
+        ctx.rotate(-cars[i].r * (Math.PI/180));
+        ctx.translate(-camX - cars[i].x * camZ / 25, -camY - cars[i].y * camZ / 25);
+    }
 
-    car.shootRays();
-    car.move();
-    car.network.draw(0,0,15,5);
+    // time
+    ctx.font = "50px serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("time: " + time, 20, 50);
+    ctx.fillText("gen: " + generation, 20, 100);
     
+    //#endregion
+    
+    if (time < SIMULATION_TIME) {
+        time ++;
+        for (var i = 0; i < cars.length; i++) {
+            cars[i].move();
+        }
+    } else {
+        time = 0;
+        generation ++;
+        newGen();
+    }
+
     requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
