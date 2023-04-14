@@ -105,7 +105,7 @@ class Car {
 
 //#region VARIABLES
 var camX = 300;
-var camY = 300;
+var camY = 600;
 var camZ = 25;
 
 // souris
@@ -119,7 +119,8 @@ var mouseCamOffsetY = 0;
 var car = new Car();
 
 // network
-var network = new Network([9,5,5,1]);
+var network = new Network([9,12,12,9,7,5,2]);
+network.mutate(0.5,0.5,0.5);
 
 // road
 var roadWidth = 300;
@@ -202,6 +203,7 @@ function isOnRoad(x, y) {
     return result;
 }
 
+var rotSpeed = 0;
 function loop() {
     //#region MOVE CAMERA
     if(mouseLeft) {
@@ -237,13 +239,14 @@ function loop() {
     ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
     ctx.rotate(-car.r * (Math.PI/180));
     ctx.translate(-camX - car.x * camZ / 25, -camY - car.y * camZ / 25);
+    //#endregion
 
-    // rays
+    //#region RAYS
     ctx.fillStyle = "yellow";
     for (var r = 0; r <= 9; r ++) {
         var rayX = car.x;
         var rayY = car.y;
-        var rayR = r*10-45;
+        var rayR = (r*10-45+car.r)%360;
         var distance = 0;
         while (isOnRoad(rayX, rayY) && distance < MAX_RAY_DIS) {
             rayX += Math.cos(rayR * (Math.PI/180)) * 1;
@@ -253,9 +256,16 @@ function loop() {
         }
         network.layers[0][r] = distance / 100;
     }
+    //#endregion
+
+    car.r += rotSpeed;
+    car.r %= 360;
+
     network.draw(0,0,15,5);
     network.evaluate();
-    //#endregion
+
+    rotSpeed = network.layers[network.layers.length - 1][0];
+    car.speed = network.layers[network.layers.length - 1][1];
     requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
@@ -281,4 +291,17 @@ document.addEventListener("wheel", (e) => {
     camZ -= e.deltaY * 0.01;
     if (camZ < 1) { camZ = 1; }
 });
+/*document.addEventListener("keydown", (e) => {
+    if (e.which === 65) {
+        rotSpeed = -5;
+    }
+    if (e.which === 68) {
+        rotSpeed = 5;;
+    }
+});
+document.addEventListener("keyup", (e) => {
+    if (e.which === 65 || e.which === 68) {
+        rotSpeed = 0;
+    }
+});*/
 //#endregion
