@@ -12,7 +12,7 @@ const c_road = "#333333";
 
 // sprites
 const s_car = new Image();
-s_car.src = "../img/car.png";
+s_car.src = "./img/car.png";
 
 // other
 const MAX_RAY_DIS = 600;
@@ -311,7 +311,7 @@ function newGen() {
 }
 
 var selectedCar = 0;
-var focus = true;
+var focus = false;
 var drawNetwork = false;
 function loop() {
     //#region MOVE CAMERA
