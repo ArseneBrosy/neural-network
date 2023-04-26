@@ -10,10 +10,20 @@
 </head>
 <body>
     <div id="GUI">
-        <h1>Resau de neurone</h1>
-        <p>Experience par Arsène Brosy</p>
+        <canvas id="gui-background"></canvas>
+        <div id="home-page" style="display: none;">
+            <h1>Resau de neurone</h1>
+            <p>Experience par Arsène Brosy</p>
+            <button>Reprendre</button>
+            <button>Nouveau</button>
+        </div>
+        <div id="new-page">
+            <h1>Nouvelle simulation</h1>
+            
+        </div>
     </div>
     <canvas id="renderer"></canvas>
     <script src="./js/script.js"></script>
+    <script src="./js/gui-background.js"></script>
 </body>
 </html>

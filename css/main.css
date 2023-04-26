@@ -21,5 +21,32 @@ canvas {
     width: 100vw;
     height: 100vh;
     position: absolute;
-    background-color: white;
+    background-color: black;
+    color: white;
+}
+
+#GUI canvas {
+    position: absolute;
+    z-index: -1;
+}
+
+#GUI>div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#GUI p {
+    margin-bottom: 20vh;
+}
+
+button {
+    margin: 10px 0;
+    width: 40vw;
+    height: 75px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: bold;
 }
