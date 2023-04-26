@@ -175,6 +175,9 @@ var camX = 300;
 var camY = 600;
 var camZ = 25;
 
+// simualtion
+var simualtionStarted = false;
+
 // souris
 var mouseX = 0;
 var mouseY = 0;
@@ -301,10 +304,6 @@ function newGen() {
         newCars.push(parent);
         newCars.push(children);
     }
-    // mutate
-    for (var i = 0; i < newCars.length; i+=2) {
-        //newCars[i].network.mutate(MUTATION_SIZE, MUTATION_SIZE, MUTATION_SIZE);
-    }
     cars = newCars;
     localStorage.setItem("neuranet-cars", JSON.stringify(cars));
     localStorage.setItem("neuranet-gen", JSON.stringify(generation));
@@ -314,72 +313,73 @@ var selectedCar = 0;
 var focus = false;
 var drawNetwork = false;
 function loop() {
-    //#region MOVE CAMERA
-    if(mouseLeft) {
-        camX = mouseX + mouseCamOffsetX;
-        camY = mouseY + mouseCamOffsetY;
-    }
-    if (focus) {
-        camX = -cars[selectedCar].x * camZ / 25 + canvas.width / 2;
-        camY = -cars[selectedCar].y * camZ / 25 + canvas.height / 2;
-    }
-    //#endregion
-
-    //#region AFFICHAGE
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    // Background
-    ctx.fillStyle = c_background;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // road
-    ctx.strokeStyle = c_road;
-    ctx.lineWidth = roadWidth * camZ / 25;
-    ctx.beginPath();
-    ctx.moveTo(camX + road[0][0] * camZ / 25, camY + road[0][1] * camZ / 25);
-    for (var i = 1; i < road.length; i++) {
-        ctx.lineTo(camX + road[i][0] * camZ / 25, camY + road[i][1] * camZ / 25);
-    }
-    ctx.closePath();
-    ctx.stroke();
-
-    // Cars
-    ctx.globalAlpha = 0.2;
-    for (var i = 0; i < cars.length; i++) {
-        if (i === selectedCar) { ctx.globalAlpha = 1; }
-        ctx.translate(camX + cars[i].x * camZ / 25, camY + cars[i].y * camZ / 25);
-        ctx.rotate(cars[i].r * (Math.PI/180));
-        ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
-        ctx.rotate(-cars[i].r * (Math.PI/180));
-        ctx.translate(-camX - cars[i].x * camZ / 25, -camY - cars[i].y * camZ / 25);
-        ctx.globalAlpha = 0.2;
-    }
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "green";
-    ctx.fillRect(camX + cars[selectedCar].x * camZ / 25 - camZ, camY + cars[selectedCar].y * camZ / 25 - camZ, camZ * 2, camZ * 2);
-    cars[selectedCar].drawRays();
-    if (drawNetwork) { cars[selectedCar].network.draw(0,0,15,10); }
-
-    // time
-    ctx.font = "50px serif";
-    ctx.fillStyle = "black";
-    ctx.fillText("time: " + time, 20, canvas.height - 75);
-    ctx.fillText("gen: " + generation, 20, canvas.height - 25);
-    
-    //#endregion
-    
-    if (time < simulation_time) {
-        time ++;
-        for (var i = 0; i < cars.length; i++) {
-            cars[i].move();
+    if (simualtionStarted) {
+        //#region MOVE CAMERA
+        if(mouseLeft) {
+            camX = mouseX + mouseCamOffsetX;
+            camY = mouseY + mouseCamOffsetY;
         }
-    } else {
-        time = 0;
-        generation ++;
-        newGen();
-    }
+        if (focus) {
+            camX = -cars[selectedCar].x * camZ / 25 + canvas.width / 2;
+            camY = -cars[selectedCar].y * camZ / 25 + canvas.height / 2;
+        }
+        //#endregion
 
+        //#region AFFICHAGE
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Background
+        ctx.fillStyle = c_background;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // road
+        ctx.strokeStyle = c_road;
+        ctx.lineWidth = roadWidth * camZ / 25;
+        ctx.beginPath();
+        ctx.moveTo(camX + road[0][0] * camZ / 25, camY + road[0][1] * camZ / 25);
+        for (var i = 1; i < road.length; i++) {
+            ctx.lineTo(camX + road[i][0] * camZ / 25, camY + road[i][1] * camZ / 25);
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        // Cars
+        ctx.globalAlpha = 0.2;
+        for (var i = 0; i < cars.length; i++) {
+            if (i === selectedCar) { ctx.globalAlpha = 1; }
+            ctx.translate(camX + cars[i].x * camZ / 25, camY + cars[i].y * camZ / 25);
+            ctx.rotate(cars[i].r * (Math.PI/180));
+            ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
+            ctx.rotate(-cars[i].r * (Math.PI/180));
+            ctx.translate(-camX - cars[i].x * camZ / 25, -camY - cars[i].y * camZ / 25);
+            ctx.globalAlpha = 0.2;
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "green";
+        ctx.fillRect(camX + cars[selectedCar].x * camZ / 25 - camZ, camY + cars[selectedCar].y * camZ / 25 - camZ, camZ * 2, camZ * 2);
+        cars[selectedCar].drawRays();
+        if (drawNetwork) { cars[selectedCar].network.draw(0,0,15,10); }
+
+        // time
+        ctx.font = "50px serif";
+        ctx.fillStyle = "black";
+        ctx.fillText("time: " + time, 20, canvas.height - 75);
+        ctx.fillText("gen: " + generation, 20, canvas.height - 25);
+        
+        //#endregion
+        
+        if (time < simulation_time) {
+            time ++;
+            for (var i = 0; i < cars.length; i++) {
+                cars[i].move();
+            }
+        } else {
+            time = 0;
+            generation ++;
+            newGen();
+        }
+    }
     requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
