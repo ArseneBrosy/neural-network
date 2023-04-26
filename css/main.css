@@ -38,8 +38,74 @@ canvas {
     justify-content: center;
 }
 
-#GUI p {
+#GUI #home-page p {
     margin-bottom: 20vh;
+}
+
+#GUI #new-page h1 {
+    margin-bottom: 100px;
+}
+
+#GUI #new-page p {
+    width: 500px;
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+#GUI #new-page div {
+    display: flex;
+}
+
+
+#GUI #new-page span button {
+    width: 30px;
+    height: 30px;
+    margin: 0 10px;
+    border: 1px solid white;
+    color: white;
+    background-color: transparent;
+    border-radius: 5px;
+}
+
+#GUI #new-page div button {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid white;
+    color: white;
+    background-color: transparent;
+    margin: 5px 20px;
+    font-size: 12px;
+}
+
+#GUI #new-page button {
+    margin: 10px 0;
+    width: 20vw;
+    height: 50px;
+    font-size: 1rem;
+}
+
+#GUI #new-page div div {
+    flex-direction: column;
+    justify-content: center;
+}
+
+#GUI #new-page div div div {
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    margin: 5px 20px;
+}
+
+input {
+    width: 100px;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: transparent;
+    color: white;
 }
 
 button {

@@ -104,7 +104,7 @@ class Car {
         this.r = 0;
         this.speed = 0;
         this.rotSpeed = 0;
-        this.network = new Network([9,12,12,9,7,5,2]);
+        this.network = new Network(carLayers);
         this.crashed = false;
         this.fitness = 0;
     }
@@ -190,7 +190,8 @@ var generation = 0;
 
 // cars
 var cars = [];
-for (var i = 0; i < 15; i++) {
+var carLayers = [];
+/*for (var i = 0; i < 15; i++) {
     var ncar = new Car();
     ncar.network.mutate(0.5,0.5,0.5);
     cars.push(ncar);
@@ -202,7 +203,7 @@ if (localStorage.getItem("neuranet-cars") != null) {
     }
     //cars = JSON.parse(localStorage.getItem("neuranet-cars"));
     generation = JSON.parse(localStorage.getItem("neuranet-gen"));
-}
+}*/
 
 // road
 var roadWidth = 300;
@@ -309,10 +310,22 @@ function newGen() {
     localStorage.setItem("neuranet-gen", JSON.stringify(generation));
 }
 
+function StartSimualtion(layers, nbCars, simTime) {
+    simulation_time = simTime;
+    carLayers = layers;
+    for (var i = 0; i < nbCars; i++) {
+        var ncar = new Car();
+        ncar.network.mutate(0.5,0.5,0.5);
+        cars.push(ncar);
+    }
+    document.getElementById("GUI").style.display = "none";
+    simualtionStarted = true;
+}
+
 var selectedCar = 0;
 var focus = false;
 var drawNetwork = false;
-function loop() {
+function mainLoop() {
     if (simualtionStarted) {
         //#region MOVE CAMERA
         if(mouseLeft) {
@@ -380,9 +393,9 @@ function loop() {
             newGen();
         }
     }
-    requestAnimationFrame(loop);
+    requestAnimationFrame(mainLoop);
 }
-requestAnimationFrame(loop);
+requestAnimationFrame(mainLoop);
 
 //#region INPUTS
 document.addEventListener("mousemove", (e) => {
@@ -406,7 +419,6 @@ document.addEventListener("wheel", (e) => {
     if (camZ < 1) { camZ = 1; }
 });
 document.addEventListener("keydown", (e) => {
-    console.log(e.which);
     if (e.which === 13) {
         drawNetwork = !drawNetwork;
     }
