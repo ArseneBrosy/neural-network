@@ -176,7 +176,7 @@ var camY = 600;
 var camZ = 25;
 
 // simualtion
-var simualtionStarted = false;
+var simulationStarted = false;
 
 // souris
 var mouseX = 0;
@@ -308,6 +308,8 @@ function newGen() {
     cars = newCars;
     localStorage.setItem("neuranet-cars", JSON.stringify(cars));
     localStorage.setItem("neuranet-gen", JSON.stringify(generation));
+    localStorage.setItem("neuranet-sim-time", JSON.stringify(simulation_time));
+    localStorage.setItem("neuranet-layers", JSON.stringify(layers));
 }
 
 function StartSimualtion(layers, nbCars, simTime) {
@@ -319,14 +321,34 @@ function StartSimualtion(layers, nbCars, simTime) {
         cars.push(ncar);
     }
     document.getElementById("GUI").style.display = "none";
-    simualtionStarted = true;
+    simulationStarted = true;
+}
+
+function LoadSimulation() {
+    if (localStorage.getItem("neuranet-cars") != null) {
+        var saved = generation = JSON.parse(localStorage.getItem("neuranet-cars"));
+        carLayers = JSON.parse(localStorage.getItem("neuranet-layers"));
+        for (var i = 0; i < saved.length; i++) {
+            var ncar = new Car();
+            cars.push(ncar);
+        }
+        for (var i = 0; i < cars.length; i++) {
+            cars[i].network.links = JSON.parse(JSON.stringify(saved[i].network.links));
+        }
+        generation = JSON.parse(localStorage.getItem("neuranet-gen"));
+        simulation_time = parseInt(JSON.parse(localStorage.getItem("neuranet-sim-time")));
+        document.getElementById("GUI").style.display = "none";
+        simulationStarted = true;
+    } else {
+        console.error("no datas");
+    }
 }
 
 var selectedCar = 0;
 var focus = false;
 var drawNetwork = false;
 function mainLoop() {
-    if (simualtionStarted) {
+    if (simulationStarted) {
         //#region MOVE CAMERA
         if(mouseLeft) {
             camX = mouseX + mouseCamOffsetX;
@@ -392,6 +414,7 @@ function mainLoop() {
             generation ++;
             newGen();
         }
+        console.log(cars[0]);
     }
     requestAnimationFrame(mainLoop);
 }
