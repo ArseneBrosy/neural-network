@@ -1,5 +1,9 @@
 var container = document.getElementById("gui-network-layers");
 
+if (localStorage.getItem("neuranet-cars") === null) {
+    document.getElementById("load-sim-button").style.display = "none";
+}
+
 var layers = [9, 5, 5, 2];
 
 function AddLayer() {

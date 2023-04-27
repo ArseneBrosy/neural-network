@@ -191,19 +191,6 @@ var generation = 0;
 // cars
 var cars = [];
 var carLayers = [];
-/*for (var i = 0; i < 15; i++) {
-    var ncar = new Car();
-    ncar.network.mutate(0.5,0.5,0.5);
-    cars.push(ncar);
-}
-if (localStorage.getItem("neuranet-cars") != null) {
-    var saved = generation = JSON.parse(localStorage.getItem("neuranet-cars"));
-    for (var i = 0; i < cars.length; i++) {
-        cars[i].network.links = JSON.parse(JSON.stringify(saved[i].network.links));
-    }
-    //cars = JSON.parse(localStorage.getItem("neuranet-cars"));
-    generation = JSON.parse(localStorage.getItem("neuranet-gen"));
-}*/
 
 // road
 var roadWidth = 300;
@@ -286,6 +273,13 @@ function isOnRoad(x, y) {
     return result;
 }
 
+function Save() {
+    localStorage.setItem("neuranet-cars", JSON.stringify(cars));
+    localStorage.setItem("neuranet-gen", JSON.stringify(generation));
+    localStorage.setItem("neuranet-sim-time", JSON.stringify(simulation_time));
+    localStorage.setItem("neuranet-layers", JSON.stringify(layers));
+}
+
 function newGen() {
     // kill half
     var sortedCars = cars.sort((c1, c2) => (c1.fitness < c2.fitness) ? 1 : (c1.fitness > c2.fitness) ? -1 : 0);
@@ -306,10 +300,7 @@ function newGen() {
         newCars.push(children);
     }
     cars = newCars;
-    localStorage.setItem("neuranet-cars", JSON.stringify(cars));
-    localStorage.setItem("neuranet-gen", JSON.stringify(generation));
-    localStorage.setItem("neuranet-sim-time", JSON.stringify(simulation_time));
-    localStorage.setItem("neuranet-layers", JSON.stringify(layers));
+    Save();
 }
 
 function StartSimualtion(layers, nbCars, simTime) {
@@ -322,6 +313,7 @@ function StartSimualtion(layers, nbCars, simTime) {
     }
     document.getElementById("GUI").style.display = "none";
     simulationStarted = true;
+    Save();
 }
 
 function LoadSimulation() {
@@ -339,6 +331,7 @@ function LoadSimulation() {
         simulation_time = parseInt(JSON.parse(localStorage.getItem("neuranet-sim-time")));
         document.getElementById("GUI").style.display = "none";
         simulationStarted = true;
+        Save();
     } else {
         console.error("no datas");
     }
@@ -347,6 +340,8 @@ function LoadSimulation() {
 var selectedCar = 0;
 var focus = false;
 var drawNetwork = false;
+var carSelected = true;
+
 function mainLoop() {
     if (simulationStarted) {
         //#region MOVE CAMERA
@@ -380,7 +375,7 @@ function mainLoop() {
         ctx.stroke();
 
         // Cars
-        ctx.globalAlpha = 0.2;
+        ctx.globalAlpha = carSelected ? 0.2 : 1;
         for (var i = 0; i < cars.length; i++) {
             if (i === selectedCar) { ctx.globalAlpha = 1; }
             ctx.translate(camX + cars[i].x * camZ / 25, camY + cars[i].y * camZ / 25);
@@ -388,13 +383,16 @@ function mainLoop() {
             ctx.drawImage(s_car, -camZ * 4, -camZ * 2, camZ * 8, camZ * 4);
             ctx.rotate(-cars[i].r * (Math.PI/180));
             ctx.translate(-camX - cars[i].x * camZ / 25, -camY - cars[i].y * camZ / 25);
-            ctx.globalAlpha = 0.2;
+            ctx.globalAlpha = carSelected ? 0.2 : 1;
         }
         ctx.globalAlpha = 1;
-        ctx.fillStyle = "green";
-        ctx.fillRect(camX + cars[selectedCar].x * camZ / 25 - camZ, camY + cars[selectedCar].y * camZ / 25 - camZ, camZ * 2, camZ * 2);
-        cars[selectedCar].drawRays();
-        if (drawNetwork) { cars[selectedCar].network.draw(0,0,15,10); }
+
+        if (carSelected) {
+            ctx.fillStyle = "green";
+            ctx.fillRect(camX + cars[selectedCar].x * camZ / 25 - camZ, camY + cars[selectedCar].y * camZ / 25 - camZ, camZ * 2, camZ * 2);
+            cars[selectedCar].drawRays();
+            if (drawNetwork) { cars[selectedCar].network.draw(0,0,15,10); }
+        }
 
         // time
         ctx.font = "50px serif";
@@ -414,7 +412,6 @@ function mainLoop() {
             generation ++;
             newGen();
         }
-        console.log(cars[0]);
     }
     requestAnimationFrame(mainLoop);
 }
@@ -444,6 +441,10 @@ document.addEventListener("wheel", (e) => {
 document.addEventListener("keydown", (e) => {
     if (e.which === 13) {
         drawNetwork = !drawNetwork;
+        document.getElementById("game-GUI").style.display = drawNetwork ? "flex" : "none";
+    }
+    if (e.which === 17) {
+        carSelected = !carSelected;
     }
     if (e.which === 27) {
         focus = false;

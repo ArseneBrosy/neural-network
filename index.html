@@ -14,7 +14,7 @@
         <div id="home-page" style="display: flex;">
             <h1>Resau de neurone</h1>
             <p>Experience par Arsène Brosy</p>
-            <button onclick="LoadSimulation()">Reprendre</button>
+            <button id="load-sim-button" onclick="LoadSimulation()">Reprendre</button>
             <button onclick="HomeNew()">Nouveau</button>
         </div>
         <div id="new-page" style="display: none;">
@@ -44,6 +44,26 @@
             <p>Temps d'un generation<input type="number" min="500" value="500" id="gui-sim-time"></p>
             <button onclick="NewSim()">Commencer</button>
         </div>
+    </div>
+    <div id="game-GUI" style="display: none;">
+        <table>
+            <tr>
+                <td>Afficher / cacher l'interface</td>
+                <td>Enter</td>
+            </tr>
+            <tr>
+                <td>Activer / desactiver la camera libre</td>
+                <td>F</td>
+            </tr>
+            <tr>
+                <td>Activer / desactiver la suivi</td>
+                <td>Ctrl</td>
+            </tr>
+            <tr>
+                <td>Changer de voiture</td>
+                <td>Espace</td>
+            </tr>
+        </table>
     </div>
     <canvas id="renderer"></canvas>
     <script src="./js/script.js"></script>

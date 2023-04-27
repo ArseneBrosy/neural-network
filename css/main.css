@@ -25,6 +25,27 @@ canvas {
     color: white;
 }
 
+#game-GUI {
+    pointer-events: none;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    color: black;
+    display: flex;
+    justify-content: flex-end;
+    align-items: end;
+}
+
+#game-GUI table {
+    background-color: white;
+    padding: 20px;
+    margin: 20px;
+}
+
+#game-GUI table tr td:last-child {
+    font-weight: bold;
+}
+
 #GUI canvas {
     position: absolute;
     z-index: -1;
