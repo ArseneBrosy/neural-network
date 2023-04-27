@@ -2,6 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     border: 0;
+    font-family: Montserrat;
 }
 
 body {
@@ -14,4 +15,125 @@ body {
 canvas {
     width: 100vw;
     height: 100vh;
+}
+
+#GUI {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    background-color: black;
+    color: white;
+}
+
+#game-GUI {
+    pointer-events: none;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    color: black;
+    display: flex;
+    justify-content: flex-end;
+    align-items: end;
+}
+
+#game-GUI table {
+    background-color: white;
+    padding: 20px;
+    margin: 20px;
+}
+
+#game-GUI table tr td:last-child {
+    font-weight: bold;
+}
+
+#GUI canvas {
+    position: absolute;
+    z-index: -1;
+}
+
+#GUI>div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#GUI #home-page p {
+    margin-bottom: 20vh;
+}
+
+#GUI #new-page h1 {
+    margin-bottom: 100px;
+}
+
+#GUI #new-page p {
+    width: 500px;
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+#GUI #new-page div {
+    display: flex;
+}
+
+
+#GUI #new-page span button {
+    width: 30px;
+    height: 30px;
+    margin: 0 10px;
+    border: 1px solid white;
+    color: white;
+    background-color: transparent;
+    border-radius: 5px;
+}
+
+#GUI #new-page div button {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid white;
+    color: white;
+    background-color: transparent;
+    margin: 5px 20px;
+    font-size: 12px;
+}
+
+#GUI #new-page button {
+    margin: 10px 0;
+    width: 20vw;
+    height: 50px;
+    font-size: 1rem;
+}
+
+#GUI #new-page div div {
+    flex-direction: column;
+    justify-content: center;
+}
+
+#GUI #new-page div div div {
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    margin: 5px 20px;
+}
+
+input {
+    width: 100px;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: transparent;
+    color: white;
+}
+
+button {
+    margin: 10px 0;
+    width: 40vw;
+    height: 75px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: bold;
 }
